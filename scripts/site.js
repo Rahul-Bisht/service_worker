@@ -20,3 +20,5 @@ setTimeout(function() {
      navigator.serviceWorker.controller.postMessage("Calling from client",[mc.port2]);
     
 }, 1000);
+
+//http://craig-russell.co.uk/2016/01/29/service-worker-messaging.html#.WUJ6LWiGOUl
