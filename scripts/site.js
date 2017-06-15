@@ -6,6 +6,10 @@ if (navigator.serviceWorker){
     });
 }
 
+ navigator.serviceWorker.addEventListener('message', function(event){
+        console.log("Client 1 Received Message: " + event.data);
+    });
+
 setTimeout(function() {
     let el=document.querySelector('#updatetime');
     let mc=new MessageChannel();

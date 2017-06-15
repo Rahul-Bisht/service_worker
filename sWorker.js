@@ -11,8 +11,23 @@ self.addEventListener('activate',(event)=>{
 })
 self.addEventListener('message',(e)=>{
     console.log('SW received msg '+e.data);
-    let t=new Date().getTime();
-    console.log(t);
-    console.log(e.ports);
-    e.ports[0].postMessage(t);
+    let t=new Date().getTime();   
+    send_message_to_client(e,"hi");
+    
 });
+
+function send_message_to_client(client, msg){
+    return new Promise(function(resolve, reject){
+        var msg_chan = new MessageChannel();
+
+        msg_chan.port1.onmessage = function(event){
+            if(event.data.error){
+                reject(event.data.error);
+            }else{
+                resolve(event.data);
+            }
+        };
+
+        client.postMessage("SW Says: '"+msg+"'", [msg_chan.port2]);
+    });
+}
