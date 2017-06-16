@@ -1,24 +1,35 @@
-if (navigator.serviceWorker){
-    navigator.serviceWorker.register('/sWorker.js',{scope:'/'}).then((reg)=>{
+if (navigator.serviceWorker) {
+    navigator.serviceWorker.register('/sWorker.js', {
+        scope: '/'
+    }).then((reg) => {
         console.log('Registration succeeded.');
-    }).catch((er)=>{
+    }).catch((er) => {
         console.log(er);
     });
 }
 
- navigator.serviceWorker.addEventListener('message', function(event){
-        console.log("Client 1 Received Message: " + event.data);
-    });
+function send_message_to_sw(msg) {
+    return new Promise(function (resolve, reject) {
+        var mc = new MessageChannel();
 
-setTimeout(function() {
-    let el=document.querySelector('#updatetime');
-    let mc=new MessageChannel();
-    mc.port1.onmessage=(e)=>{
-        debugger;
-        el.innerHTML=time;
-    }
-     navigator.serviceWorker.controller.postMessage("Calling from client",[mc.port2]);
-    
-}, 1000);
+        mc.port1.onmessage = function (event) {
+            if (event.data.error) {
+                reject(event.data.error);
+            } else {
+                resolve(event.data);
+            }
+        };
+
+        navigator.serviceWorker.controller.postMessage(msg, [mc.port2]);
+    });
+}
+setInterval(function () {
+    let el = document.querySelector('#updatetime');
+    send_message_to_sw('get time').then((data) => {
+        el.innerHTML = data;
+    }).catch((err) => {
+        console.log(err);
+    })
+}, 500);
 
 //http://craig-russell.co.uk/2016/01/29/service-worker-messaging.html#.WUJ6LWiGOUl
